@@ -1,6 +1,7 @@
 use glium::glutin::Event;
 use glium::glutin::MouseButton;
 use glium::glutin::ElementState;
+use glium::glutin::MouseScrollDelta;
 
 use renderer::Renderer;
 
@@ -39,13 +40,19 @@ impl InputHandler {
         let delta = (x - self.last_mouse_pos[0], y - self.last_mouse_pos[1]);
         if !self.first_frame {
           if self.mouse_2_down {
-            renderer.camera_pos[0] -= delta.0;
-            renderer.camera_pos[1] -= delta.1;
+            renderer.camera_pos[0] -= delta.0 * renderer.camera_zoom;
+            renderer.camera_pos[1] -= delta.1 * renderer.camera_zoom;
           }
         }
         self.last_mouse_pos[0] = x;
         self.last_mouse_pos[1] = y;
-      }
+      },
+      Event::MouseWheel(MouseScrollDelta::LineDelta(x, y), _) => {
+        renderer.camera_zoom -= y * 0.1f32;
+        if renderer.camera_zoom < 0.1f32 {
+          renderer.camera_zoom = 0.1f32;
+        }
+      },
       Event::MouseInput(state, button) => {
         match button {
           MouseButton::Left => match state {
