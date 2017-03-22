@@ -21,6 +21,8 @@ pub struct Renderer {
 
   /// Handle to the OpenGL vertex buffer
   v_buf: glium::VertexBuffer<Vertex>,
+
+  pub camera_pos: [f32; 2],
 }
 
 const VERT_SHADER_SRC : &'static str = r#"
@@ -55,6 +57,7 @@ impl Renderer {
     Renderer {
       program: glium::Program::from_source(display, VERT_SHADER_SRC, FRAG_SHADER_SRC, None).unwrap(),
       v_buf: glium::VertexBuffer::empty_dynamic(display, BUF_SIZE).unwrap(),
+      camera_pos: [0.0, 0.0],
     }
   }
 
@@ -99,12 +102,19 @@ impl Renderer {
     self.v_buf.slice(0 .. data.len()).unwrap().write(&data);
 
     let (w, h) = target.get_dimensions();
+    let w = w as f32;
+    let h = h as f32;
+    // (right + left)/(right - left)
+    let tx = - (w + self.camera_pos[0] + self.camera_pos[0])/(w);
+    // - (top + bottom)/(top - bottom)
+    let ty = - (h + self.camera_pos[1] + self.camera_pos[1])/(-w);
+
     let uniforms = uniform! {
       proj_mat: [
-        [2.0/w as f32, 0.0,           0.0, -0.0],
-        [0.0,         -2.0/h as f32,  0.0,  0.0],
-        [0.0,          0.0,          -1.0,  0.0],
-        [-1.0,         1.0,           0.0,  1.0]
+        [2.0/w,  0.0,    0.0, 0.0],
+        [0.0,   -2.0/h,  0.0, 0.0],
+        [0.0,    0.0,   -1.0, 0.0],
+        [ tx,     ty,    0.0, 1.0]
       ],
     };
 

@@ -16,6 +16,9 @@ mod component;
 /// Canvas mod. Represent this software's central canvas, which renders all of the views.
 mod canvas;
 
+/// Input handling module.
+mod input;
+
 use std::rc::Rc;
 
 fn init_display() -> GlutinFacade {
@@ -43,10 +46,12 @@ fn main() {
   let display = init_display();
   let mut renderer = renderer::Renderer::new(&display);
   let canvas = init_canvas();
+  let mut input_handler = input::InputHandler::new();
 
   loop {
     // Poll events
     for e in display.poll_events() {
+      input_handler.handle_event(&mut renderer, &e);
       match e {
         glium::glutin::Event::Closed => return,
         _ => continue,

@@ -1,0 +1,14 @@
+use glium::glutin::Event;
+
+/// Holds input state, like last mouse position.
+pub struct InputHandler {
+}
+
+impl InputHandler {
+  pub fn new() -> InputHandler {
+    InputHandler {}
+  }
+
+  pub fn handle_event(e: Event) {
+  }
+}
